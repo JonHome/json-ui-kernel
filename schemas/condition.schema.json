@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openbit.app/schemas/ui-kernel/condition.schema.json",
+  "title": "Condition",
+  "description": "Declarative condition tree for visibility and branch selection.",
+  "$defs": {
+    "PathRef": {
+      "type": "string",
+      "pattern": "^\\$(data|derived|viewer|route|state)(\\.[A-Za-z0-9_\\-\\[\\]]+)+$"
+    },
+    "StringLiteral": {
+      "type": "string",
+      "not": {
+        "pattern": "^\\$(data|derived|viewer|route|state)(\\.[A-Za-z0-9_\\-\\[\\]]+)+$"
+      }
+    },
+    "Literal": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/StringLiteral"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "ArrayLiteral": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Literal"
+      }
+    },
+    "Comparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "op"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/PathRef"
+        },
+        "op": {
+          "type": "string",
+          "enum": [
+            "=",
+            "!=",
+            "in",
+            "not_in",
+            "exists",
+            "not_exists",
+            ">",
+            ">=",
+            "<",
+            "<="
+          ]
+        },
+        "value": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Literal"
+            },
+            {
+              "$ref": "#/$defs/ArrayLiteral"
+            },
+            {
+              "$ref": "#/$defs/PathRef"
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "enum": [
+                  "exists",
+                  "not_exists"
+                ]
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "not": {
+              "required": [
+                "value"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "enum": [
+                  "=",
+                  "!=",
+                  "in",
+                  "not_in",
+                  ">",
+                  ">=",
+                  "<",
+                  "<="
+                ]
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "value"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/Comparison"
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "all"
+      ],
+      "properties": {
+        "all": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#"
+          }
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "any"
+      ],
+      "properties": {
+        "any": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#"
+          }
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "not"
+      ],
+      "properties": {
+        "not": {
+          "$ref": "#"
+        }
+      }
+    }
+  ]
+}

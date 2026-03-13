@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openbit.app/schemas/ui-kernel/node.schema.json",
+  "title": "Node",
+  "description": "Renderer-agnostic UI node contract.",
+  "$defs": {
+    "ScalarVariantValue": {
+      "type": [
+        "string",
+        "number",
+        "integer",
+        "boolean"
+      ]
+    },
+    "VariantMap": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/ScalarVariantValue"
+      }
+    },
+    "PropsValue": {
+      "oneOf": [
+        {
+          "type": [
+            "string",
+            "number",
+            "integer",
+            "boolean",
+            "null"
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PropsValue"
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/PropsValue"
+          }
+        }
+      ]
+    },
+    "PropsMap": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/PropsValue"
+      }
+    },
+    "SlotContent": {
+      "oneOf": [
+        {
+          "$ref": "#"
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#"
+          }
+        }
+      ]
+    },
+    "SlotMap": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/SlotContent"
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "kind"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "component",
+        "fragment",
+        "slot",
+        "text",
+        "collection"
+      ]
+    },
+    "component": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*(\\.[a-z0-9][a-z0-9-]*)+$"
+    },
+    "variant": {
+      "$ref": "#/$defs/VariantMap"
+    },
+    "props": {
+      "$ref": "#/$defs/PropsMap"
+    },
+    "slots": {
+      "$ref": "#/$defs/SlotMap"
+    },
+    "bind": {
+      "$ref": "./binding.schema.json"
+    },
+    "visibleWhen": {
+      "oneOf": [
+        {
+          "$ref": "./condition.schema.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "$ref": "./action.schema.json"
+      }
+    },
+    "themeRef": {
+      "$ref": "./theme-ref.schema.json"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "component"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "required": [
+          "component"
+        ]
+      }
+    }
+  ]
+}

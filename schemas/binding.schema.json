@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openbit.app/schemas/ui-kernel/binding.schema.json",
+  "title": "BindingMap",
+  "description": "Declarative binding map resolved against normalized view-models.",
+  "$defs": {
+    "Expression": {
+      "type": "string",
+      "pattern": "^\\$(data|derived|viewer|route|state)(\\.[A-Za-z0-9_\\-\\[\\]]+)+$"
+    },
+    "StringLiteral": {
+      "type": "string",
+      "not": {
+        "pattern": "^\\$(data|derived|viewer|route|state)(\\.[A-Za-z0-9_\\-\\[\\]]+)+$"
+      }
+    },
+    "Literal": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/StringLiteral"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "BindingValue": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/Expression"
+        },
+        {
+          "$ref": "#/$defs/Literal"
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/BindingValue"
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/BindingValue"
+          }
+        }
+      ]
+    }
+  },
+  "type": "object",
+  "description": "Maps component binding keys to symbolic expressions or nested binding structures.",
+  "propertyNames": {
+    "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+  },
+  "additionalProperties": {
+    "$ref": "#/$defs/BindingValue"
+  }
+}

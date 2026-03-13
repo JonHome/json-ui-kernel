@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openbit.app/schemas/ui-kernel/action.schema.json",
+  "title": "Action",
+  "description": "Renderer-agnostic action contract.",
+  "$defs": {
+    "Expression": {
+      "type": "string",
+      "pattern": "^\\$(data|derived|viewer|route|state)(\\.[A-Za-z0-9_\\-\\[\\]]+)+$"
+    },
+    "StringLiteral": {
+      "type": "string",
+      "not": {
+        "pattern": "^\\$(data|derived|viewer|route|state)(\\.[A-Za-z0-9_\\-\\[\\]]+)+$"
+      }
+    },
+    "Literal": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/StringLiteral"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "ParamValue": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/Expression"
+        },
+        {
+          "$ref": "#/$defs/Literal"
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ParamValue"
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/ParamValue"
+          }
+        }
+      ]
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "type"
+  ],
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": [
+        "navigate",
+        "open",
+        "submit",
+        "invoke",
+        "select",
+        "toggle"
+      ]
+    },
+    "target": {
+      "type": "string",
+      "minLength": 1
+    },
+    "params": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/ParamValue"
+      }
+    },
+    "payload": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/ParamValue"
+      }
+    },
+    "confirm": {
+      "type": "boolean"
+    },
+    "meta": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/ParamValue"
+      }
+    }
+  }
+}
